@@ -26,8 +26,12 @@ using namespace tinyply;
 #define NORMAL_FACTOR 0.05f
 
 
-struct float3 { float x, y, z; };
-struct uint3 { uint32_t x, y, z; };
+struct float3 {
+    float x, y, z;
+};
+struct uint3 {
+    uint32_t x, y, z;
+};
 
 struct Point {
     float x[3];
@@ -41,8 +45,6 @@ struct Triangle {
 Triangle triangleList[MAX_TRIANGLES];
 
 int triangleCount = 0;
-
-void InitGeometry();
 
 
 /* Viewer state */
@@ -242,7 +244,6 @@ void DrawHiddenLine(void) {
         glEnd();
 
 
-
         float center_x = (triangleList[i].v[0].x[0] + triangleList[i].v[1].x[0] + triangleList[i].v[2].x[0]) / 3.f;
         float center_y = (triangleList[i].v[0].x[1] + triangleList[i].v[1].x[1] + triangleList[i].v[2].x[1]) / 3.f;
         float center_z = (triangleList[i].v[0].x[2] + triangleList[i].v[1].x[2] + triangleList[i].v[2].x[2]) / 3.f;
@@ -413,7 +414,7 @@ void InitGL() {
 
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
-    glutInitWindowSize(500, 500);
+    glutInitWindowSize(600, 600);
 
     glutCreateWindow("Plane orientation Viewer");
 
@@ -482,14 +483,14 @@ void InitGeometry(std::string filename) {
 
     std::shared_ptr<PlyData> vertices, normals, faces;
 
-    try { vertices = file.request_properties_from_element("vertex", { "x", "y", "z" }); }
-    catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+    try { vertices = file.request_properties_from_element("vertex", {"x", "y", "z"}); }
+    catch (const std::exception &e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
 
-    try { normals = file.request_properties_from_element("face", { "nx", "ny", "nz" }); }
-    catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+    try { normals = file.request_properties_from_element("face", {"nx", "ny", "nz"}); }
+    catch (const std::exception &e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
 
-    try { faces = file.request_properties_from_element("face", { "vertex_index" }); }
-    catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+    try { faces = file.request_properties_from_element("face", {"vertex_index"}); }
+    catch (const std::exception &e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
 
     file.read(ss);
 
@@ -503,8 +504,7 @@ void InitGeometry(std::string filename) {
     const size_t numFacesBytes = faces->buffer.size_bytes();
     std::memcpy(facs.data(), faces->buffer.get(), numFacesBytes);
     triangleCount = int(facs.size());
-    for(int i=0; i < facs.size(); i++)
-    {
+    for (int i = 0; i < facs.size(); i++) {
         triangleList[i].v[0].x[0] = verts[facs[i].x].x;
         triangleList[i].v[0].x[1] = verts[facs[i].x].y;
         triangleList[i].v[0].x[2] = verts[facs[i].x].z;
@@ -542,11 +542,10 @@ int main(int argc, char **argv) {
 
     //Parsing options
     bool correctParsing = opt.parse_options(argc, argv);
-    if(!correctParsing)
+    if (!correctParsing)
         return EXIT_FAILURE;
 
-    if(op::str2bool(opt["-h"]) || opt["-i"] == "")
-    {
+    if (op::str2bool(opt["-h"]) || opt["-i"] == "") {
         opt.show_help();
         return 0;
     }
@@ -560,11 +559,10 @@ int main(int argc, char **argv) {
 
     InitMenu();
 
-    //std::string filename = "/home/langlois/Documents/Projects/smooth_surface_photogrammetry/blender_pipeline/results/maison_interior_improved/output_results/cv_1_ca_0_ce_0_cc_0.ply";
-
     InitGeometry(filename);
 
-    cout << "Simple geometry viewer:  Left mouse: rotate;  Middle mouse:  zoom;  Right mouse:   menu;  ESC to quit" << endl;
+    cout << "Simple geometry viewer:  Left mouse: rotate;  Middle mouse:  zoom;  Right mouse:   menu;  ESC to quit"
+         << endl;
 
     glutMainLoop();
 
