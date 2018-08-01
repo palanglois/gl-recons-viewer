@@ -2,7 +2,7 @@
 
 ## Build and use instruction
 
-* Dependencies : `sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev`
+* Dependencies : `sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev libxmu-dev libxi-dev`
 
 Build with CMake.
 
