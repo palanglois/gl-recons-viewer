@@ -17,5 +17,5 @@ set(CMAKE_CXX_STANDARD 11)
 add_library(tinyplyLib STATIC tinyply/tinyply.cpp )
 add_library(arcball STATIC arcball/Arcball.cpp)
 
-add_executable(opengl_test main.cpp )
-target_link_libraries(opengl_test ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} tinyplyLib arcball)
+add_executable(gl-recons-viewer main.cpp )
+target_link_libraries(gl-recons-viewer ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} tinyplyLib arcball)
