@@ -2,11 +2,11 @@
 
  The function InitGeometry() initializes  the geometry that will be displayed. */
 
-#include <assert.h>
+#include <cassert>
 
-#include <math.h>
+#include <cmath>
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <fstream>
 #include <string>
@@ -18,6 +18,7 @@
 #include <GL/glut.h>
 
 #include "tinyply.h"
+#include "Arcball.hpp"
 
 using namespace std;
 using namespace tinyply;
@@ -44,28 +45,24 @@ struct Triangle {
 
 Triangle triangleList[MAX_TRIANGLES];
 
+Arcball arcball;
+
 int triangleCount = 0;
 
 
 /* Viewer state */
 
-float sphi = 90.0, stheta = 45.0;
-
 float sdepth = 10;
 
 float zNear = 1.0, zFar = 100.0;
 
-float aspect = 5.0 / 4.0;
+float aspect = 5.0f / 4.0f;
 
 float xcam = 0, ycam = 0;
 
 long xsize, ysize;
 
-int downX, downY;
-
 bool leftButton = false, middleButton = false;
-
-int i, j;
 
 GLfloat light0Position[] = {0, 1, 0, 1.0};
 
@@ -76,13 +73,6 @@ enum {
 };
 
 int displayMode = HIDDENLINE;
-
-
-void MyIdleFunc(void) { glutPostRedisplay(); } /* things to do while idle */
-
-void RunIdleFunc(void) { glutIdleFunc(MyIdleFunc); }
-
-void PauseIdleFunc(void) { glutIdleFunc(NULL); }
 
 void DrawSmoothShaded(void) {
 
@@ -144,7 +134,7 @@ void DrawWireframe(void) {
 
     for (i = 0; i < triangleCount; ++i) {
 
-        glColor3f(1.0, 1.0, 1.0);
+        glColor3f(0.4, 0.4, 0.4);
 
         glBegin(GL_LINE_STRIP);
 
@@ -170,7 +160,7 @@ void DrawWireframe(void) {
 
         float norm_extr[3] = {norm_extr_x, norm_extr_y, norm_extr_z};
 
-        glColor3f(1.0, 0.0, 0.0);
+        glColor3f(0.8, 0.0, 0.0);
 
         glBegin(GL_LINE_STRIP);
 
@@ -215,7 +205,7 @@ void DrawHiddenLine(void) {
 
     glBegin(GL_TRIANGLES);
 
-    for (i = 0; i < triangleCount; ++i) {
+    for (int i = 0; i < triangleCount; ++i) {
 
         glVertex3fv(triangleList[i].v[0].x);
 
@@ -232,7 +222,7 @@ void DrawHiddenLine(void) {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 
-    for (i = 0; i < triangleCount; ++i) {
+    for (int i = 0; i < triangleCount; ++i) {
         glColor3f(0.4, 0.4, 0.4);
         glBegin(GL_TRIANGLES);
 
@@ -272,6 +262,8 @@ void DrawHiddenLine(void) {
 
 
 void ReshapeCallback(int width, int height) {
+
+    arcball.SetWidthHeight(width, height);
 
     xsize = width;
 
@@ -329,22 +321,6 @@ void SetMainMenu(int value) {
 
 void DisplayCallback(void) {
 
-    glMatrixMode(GL_PROJECTION);
-
-    glLoadIdentity();
-
-    gluPerspective(64.0, aspect, zNear, zFar);
-
-    glMatrixMode(GL_MODELVIEW);
-
-    glLoadIdentity();
-
-    glTranslatef(xcam, ycam, -sdepth);
-
-    glRotatef(-stheta, 1.0, 0.0, 0.0);
-
-    glRotatef(sphi, 0.0, 0.0, 1.0);
-
     switch (displayMode) {
 
         case WIREFRAME:
@@ -383,12 +359,34 @@ void KeyboardCallback(unsigned char ch, int x, int y) {
 
 void MouseCallback(int button, int state, int x, int y) {
 
-    downX = x;
-    downY = y;
 
-    leftButton = ((button == GLUT_LEFT_BUTTON) && (state == GLUT_DOWN));
+    leftButton = (button == GLUT_LEFT_BUTTON);
 
-    middleButton = ((button == GLUT_MIDDLE_BUTTON) && (state == GLUT_DOWN));
+    if (leftButton) {
+        if (state == GLUT_DOWN)
+            arcball.StartRotation(x, y);
+        else
+            arcball.StopRotation();
+    }
+
+    middleButton = (button == GLUT_MIDDLE_BUTTON);
+
+    if (middleButton) {
+        if (state == GLUT_DOWN)
+            arcball.StartDragging(x, y);
+        else
+            arcball.StopDragging();
+    }
+
+    if ((button == 3) || (button == 4)) // It's a wheel event
+    {
+        int direction = (button == 3) ? 1 : -1;
+        // Each wheel event reports like a button click, GLUT_DOWN then GLUT_UP
+        if (state == GLUT_UP) return; // Disregard redundant GLUT_UP events
+        arcball.StartZooming(0, 0);
+        arcball.UpdateZooming(-direction * y, direction * x);
+        arcball.StopZooming();
+    }
 
     glutPostRedisplay();
 }
@@ -396,28 +394,12 @@ void MouseCallback(int button, int state, int x, int y) {
 
 void MotionCallback(int x, int y) {
 
-    if (leftButton) {
-        sphi += (float) (x - downX) / 4.0;
-        stheta += (float) (downY - y) / 4.0;
-    } // rotate
+    if (leftButton)
+        arcball.UpdateRotation(x, y);
 
-    if (middleButton) { sdepth += (float) (downY - y) / 10.0; } // scale
+    if (middleButton)
+        arcball.UpdateDragging(x, y);
 
-    downX = x;
-    downY = y;
-
-    glutPostRedisplay();
-}
-
-void catchKey(int key, int x, int y) {
-    if (key == GLUT_KEY_LEFT)
-        xcam += 0.2;
-    else if (key == GLUT_KEY_RIGHT)
-        xcam -= 0.2;
-    else if (key == GLUT_KEY_DOWN)
-        ycam += 0.2;
-    else if (key == GLUT_KEY_UP)
-        ycam -= 0.2;
     glutPostRedisplay();
 }
 
@@ -464,7 +446,18 @@ void InitGL() {
 
     glutMotionFunc(MotionCallback);
 
-    glutSpecialFunc(catchKey);
+
+    glMatrixMode(GL_PROJECTION);
+
+    glLoadIdentity();
+
+    gluPerspective(64.0, aspect, zNear, zFar);
+
+    glMatrixMode(GL_MODELVIEW);
+
+    glLoadIdentity();
+
+    glTranslatef(xcam, ycam, -sdepth);
 }
 
 
@@ -575,8 +568,9 @@ int main(int argc, char **argv) {
 
     InitGeometry(filename);
 
-    cout << "Simple geometry viewer:  Left mouse: rotate;  Middle mouse:  zoom;  Right mouse:   menu;  ESC to quit"
-         << endl;
+    cout
+            << "Simple geometry viewer:  Left mouse: rotate;  Middle mouse:  move;  Scroll: zoom;  Right mouse:  menu;  ESC to quit"
+            << endl;
 
     glutMainLoop();
 
