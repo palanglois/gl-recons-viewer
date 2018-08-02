@@ -15,5 +15,5 @@ Launch : `./opengl_test -i /path/to/file.ply`
 * **Left mouse**: rotate  
 * **Middle mouse**:  move
 * **Scroll**: zoom
-* **Right** mouse:  menu
+* **Right mouse**:  menu
 * **ESC** to quit
