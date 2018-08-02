@@ -1,53 +1,17 @@
-/* Simple geometry viewer:  Left mouse: rotate;  Middle mouse:  zoom;  Right mouse:   menu;  ESC to quit
-
- The function InitGeometry() initializes  the geometry that will be displayed. */
+/* Simple geometry viewer:  Left mouse: rotate;  Middle mouse:  zoom;  Right mouse:   menu;  ESC to quit */
 
 #include <cassert>
 
 #include <cmath>
 
-#include <cstdlib>
-
-#include <fstream>
-#include <string>
-#include <iostream>
-#include <cstring>
-
 #include "option_parser.h"
 
 #include <GL/glut.h>
 
-#include "tinyply.h"
-#include "Arcball.hpp"
+#include "displayFunc.h"
+#include "callbackFunc.h"
 
 using namespace std;
-using namespace tinyply;
-
-#define MAX_TRIANGLES (1305963)
-#define NORMAL_FACTOR 0.05f
-
-
-struct float3 {
-    float x, y, z;
-};
-struct uint3 {
-    uint32_t x, y, z;
-};
-
-struct Point {
-    float x[3];
-    float n[3];
-};
-
-struct Triangle {
-    Point v[3];
-};
-
-Triangle triangleList[MAX_TRIANGLES];
-
-Arcball arcball;
-
-int triangleCount = 0;
 
 
 /* Viewer state */
@@ -56,355 +20,14 @@ float sdepth = 10;
 
 float zNear = 1.0, zFar = 100.0;
 
-float aspect = 5.0f / 4.0f;
-
 float xcam = 0, ycam = 0;
-
-long xsize, ysize;
-
-bool leftButton = false, middleButton = false;
 
 GLfloat light0Position[] = {0, 1, 0, 1.0};
 
 int displayMenu, mainMenu;
 
-enum {
-    WIREFRAME, HIDDENLINE, FLATSHADED, SMOOTHSHADED
-};
 
-int displayMode = HIDDENLINE;
-
-void DrawSmoothShaded(void) {
-
-    int i;
-
-    assert(triangleCount < MAX_TRIANGLES);
-
-    glColor3f(0.8f, 0.2f, 0.8f);
-
-    glBegin(GL_TRIANGLES);
-
-    for (i = 0; i < triangleCount; ++i) {
-
-        glNormal3fv(triangleList[i].v[0].n);
-
-        glVertex3fv(triangleList[i].v[0].x);
-
-        glNormal3fv(triangleList[i].v[1].n);
-
-        glVertex3fv(triangleList[i].v[1].x);
-
-        glNormal3fv(triangleList[i].v[2].n);
-
-        glVertex3fv(triangleList[i].v[2].x);
-    }
-
-    glEnd();
-
-    for (i = 0; i < triangleCount; ++i) {
-
-        float center_x = (triangleList[i].v[0].x[0] + triangleList[i].v[1].x[0] + triangleList[i].v[2].x[0]) / 3.f;
-        float center_y = (triangleList[i].v[0].x[1] + triangleList[i].v[1].x[1] + triangleList[i].v[2].x[1]) / 3.f;
-        float center_z = (triangleList[i].v[0].x[2] + triangleList[i].v[1].x[2] + triangleList[i].v[2].x[2]) / 3.f;
-
-        float triangle_center[3] = {center_x, center_y, center_z};
-
-        float norm_extr_x = center_x + NORMAL_FACTOR * triangleList[i].v[0].n[0];
-        float norm_extr_y = center_y + NORMAL_FACTOR * triangleList[i].v[0].n[1];
-        float norm_extr_z = center_z + NORMAL_FACTOR * triangleList[i].v[0].n[2];
-
-        float norm_extr[3] = {norm_extr_x, norm_extr_y, norm_extr_z};
-
-        glColor3f(1.0, 0.0, 0.0);
-
-        glBegin(GL_LINE_STRIP);
-
-        glVertex3fv(triangle_center);
-        glVertex3fv(norm_extr);
-
-        glEnd();
-
-    }
-}
-
-void DrawWireframe(void) {
-
-    int i;
-
-
-    for (i = 0; i < triangleCount; ++i) {
-
-        glColor3f(0.4, 0.4, 0.4);
-
-        glBegin(GL_LINE_STRIP);
-
-        glVertex3fv(triangleList[i].v[0].x);
-
-        glVertex3fv(triangleList[i].v[1].x);
-
-        glVertex3fv(triangleList[i].v[2].x);
-
-        glVertex3fv(triangleList[i].v[0].x);
-
-        glEnd();
-
-        float center_x = (triangleList[i].v[0].x[0] + triangleList[i].v[1].x[0] + triangleList[i].v[2].x[0]) / 3.f;
-        float center_y = (triangleList[i].v[0].x[1] + triangleList[i].v[1].x[1] + triangleList[i].v[2].x[1]) / 3.f;
-        float center_z = (triangleList[i].v[0].x[2] + triangleList[i].v[1].x[2] + triangleList[i].v[2].x[2]) / 3.f;
-
-        float triangle_center[3] = {center_x, center_y, center_z};
-
-        float norm_extr_x = center_x + NORMAL_FACTOR * triangleList[i].v[0].n[0];
-        float norm_extr_y = center_y + NORMAL_FACTOR * triangleList[i].v[0].n[1];
-        float norm_extr_z = center_z + NORMAL_FACTOR * triangleList[i].v[0].n[2];
-
-        float norm_extr[3] = {norm_extr_x, norm_extr_y, norm_extr_z};
-
-        glColor3f(0.8, 0.0, 0.0);
-
-        glBegin(GL_LINE_STRIP);
-
-        glVertex3fv(triangle_center);
-        glVertex3fv(norm_extr);
-
-        glEnd();
-    }
-}
-
-
-void DrawFlatShaded(void) {
-
-    int i;
-
-    glEnable(GL_POLYGON_OFFSET_FILL);
-
-    glColor3f(0.8f, 0.2f, 0.8f);
-
-    glBegin(GL_TRIANGLES);
-
-    for (i = 0; i < triangleCount; ++i) {
-
-        glVertex3fv(triangleList[i].v[0].x);
-
-        glVertex3fv(triangleList[i].v[1].x);
-
-        glVertex3fv(triangleList[i].v[2].x);
-    }
-
-    glEnd();
-
-    glDisable(GL_POLYGON_OFFSET_FILL);
-}
-
-
-void DrawHiddenLine(void) {
-
-    glEnable(GL_POLYGON_OFFSET_FILL);
-
-    glColor3f(0, 0, 0);
-
-    glBegin(GL_TRIANGLES);
-
-    for (int i = 0; i < triangleCount; ++i) {
-
-        glVertex3fv(triangleList[i].v[0].x);
-
-        glVertex3fv(triangleList[i].v[1].x);
-
-        glVertex3fv(triangleList[i].v[2].x);
-    }
-
-    glEnd();
-
-    glDisable(GL_POLYGON_OFFSET_FILL);
-
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-
-    for (int i = 0; i < triangleCount; ++i) {
-        glColor3f(0.4, 0.4, 0.4);
-        glBegin(GL_TRIANGLES);
-
-        glVertex3fv(triangleList[i].v[0].x);
-
-        glVertex3fv(triangleList[i].v[1].x);
-
-        glVertex3fv(triangleList[i].v[2].x);
-        glEnd();
-
-
-        float center_x = (triangleList[i].v[0].x[0] + triangleList[i].v[1].x[0] + triangleList[i].v[2].x[0]) / 3.f;
-        float center_y = (triangleList[i].v[0].x[1] + triangleList[i].v[1].x[1] + triangleList[i].v[2].x[1]) / 3.f;
-        float center_z = (triangleList[i].v[0].x[2] + triangleList[i].v[1].x[2] + triangleList[i].v[2].x[2]) / 3.f;
-
-        float triangle_center[3] = {center_x, center_y, center_z};
-
-        float norm_extr_x = center_x + NORMAL_FACTOR * triangleList[i].v[0].n[0];
-        float norm_extr_y = center_y + NORMAL_FACTOR * triangleList[i].v[0].n[1];
-        float norm_extr_z = center_z + NORMAL_FACTOR * triangleList[i].v[0].n[2];
-
-        float norm_extr[3] = {norm_extr_x, norm_extr_y, norm_extr_z};
-
-        glColor3f(0.8, 0.0, 0.0);
-
-        glBegin(GL_LINE_STRIP);
-
-        glVertex3fv(triangle_center);
-        glVertex3fv(norm_extr);
-
-        glEnd();
-    }
-
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
-
-
-void ReshapeCallback(int width, int height) {
-
-    arcball.SetWidthHeight(width, height);
-
-    xsize = width;
-
-    ysize = height;
-
-    aspect = (float) xsize / (float) ysize;
-
-    glViewport(0, 0, xsize, ysize);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glutPostRedisplay();
-}
-
-
-void SetDisplayMenu(int value) {
-
-    displayMode = value;
-
-    switch (value) {
-
-        case WIREFRAME:
-            glShadeModel(GL_FLAT);
-            glDisable(GL_LIGHTING);
-            break;
-
-        case HIDDENLINE:
-            glShadeModel(GL_FLAT);
-            glDisable(GL_LIGHTING);
-            break;
-
-        case FLATSHADED:
-            glShadeModel(GL_FLAT);
-            glEnable(GL_LIGHTING);
-            break;
-
-        case SMOOTHSHADED:
-            glShadeModel(GL_SMOOTH);
-            glEnable(GL_LIGHTING);
-            break;
-    }
-
-    glutPostRedisplay();
-}
-
-
-void SetMainMenu(int value) {
-    switch (value) {
-        case 99:
-            exit(0);
-            break;
-    }
-}
-
-
-void DisplayCallback(void) {
-
-    switch (displayMode) {
-
-        case WIREFRAME:
-            DrawWireframe();
-            break;
-
-        case HIDDENLINE:
-            DrawHiddenLine();
-            break;
-
-        case FLATSHADED:
-            DrawFlatShaded();
-            break;
-
-        case SMOOTHSHADED:
-            DrawSmoothShaded();
-            break;
-    }
-
-    glutSwapBuffers();
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-
-void KeyboardCallback(unsigned char ch, int x, int y) {
-
-    switch (ch) {
-        case 27:
-            exit(0);
-            break;
-    }
-    glutPostRedisplay();
-}
-
-
-void MouseCallback(int button, int state, int x, int y) {
-
-
-    leftButton = (button == GLUT_LEFT_BUTTON);
-
-    if (leftButton) {
-        if (state == GLUT_DOWN)
-            arcball.StartRotation(x, y);
-        else
-            arcball.StopRotation();
-    }
-
-    middleButton = (button == GLUT_MIDDLE_BUTTON);
-
-    if (middleButton) {
-        if (state == GLUT_DOWN)
-            arcball.StartDragging(x, y);
-        else
-            arcball.StopDragging();
-    }
-
-    if ((button == 3) || (button == 4)) // It's a wheel event
-    {
-        int direction = (button == 3) ? 1 : -1;
-        // Each wheel event reports like a button click, GLUT_DOWN then GLUT_UP
-        if (state == GLUT_UP) return; // Disregard redundant GLUT_UP events
-        arcball.StartZooming(0, 0);
-        arcball.UpdateZooming(-direction * y, direction * x);
-        arcball.StopZooming();
-    }
-
-    glutPostRedisplay();
-}
-
-
-void MotionCallback(int x, int y) {
-
-    if (leftButton)
-        arcball.UpdateRotation(x, y);
-
-    if (middleButton)
-        arcball.UpdateDragging(x, y);
-
-    glutPostRedisplay();
-}
-
-
-void InitGL() {
+void InitGL(windowData *data) {
 
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
@@ -451,7 +74,7 @@ void InitGL() {
 
     glLoadIdentity();
 
-    gluPerspective(64.0, aspect, zNear, zFar);
+    gluPerspective(64.0, data->aspect, zNear, zFar);
 
     glMatrixMode(GL_MODELVIEW);
 
@@ -483,63 +106,6 @@ void InitMenu() {
 }
 
 
-void InitGeometry(std::string filename) {
-    std::ifstream ss(filename, std::ios::binary);
-    PlyFile file;
-    file.parse_header(ss);
-
-    std::shared_ptr<PlyData> vertices, normals, faces;
-
-    try { vertices = file.request_properties_from_element("vertex", {"x", "y", "z"}); }
-    catch (const std::exception &e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
-
-    try { normals = file.request_properties_from_element("face", {"nx", "ny", "nz"}); }
-    catch (const std::exception &e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
-
-    try { faces = file.request_properties_from_element("face", {"vertex_index"}); }
-    catch (const std::exception &e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
-
-    file.read(ss);
-
-    std::vector<float3> verts(vertices->count);
-    const size_t numVerticesBytes = vertices->buffer.size_bytes();
-    std::memcpy(verts.data(), vertices->buffer.get(), numVerticesBytes);
-    std::vector<float3> norms(normals->count);
-    const size_t numNormalsBytes = normals->buffer.size_bytes();
-    std::memcpy(norms.data(), normals->buffer.get(), numNormalsBytes);
-    std::vector<uint3> facs(faces->count);
-    const size_t numFacesBytes = faces->buffer.size_bytes();
-    std::memcpy(facs.data(), faces->buffer.get(), numFacesBytes);
-    triangleCount = int(facs.size());
-    for (unsigned int i = 0; i < facs.size(); i++) {
-        triangleList[i].v[0].x[0] = verts[facs[i].x].x;
-        triangleList[i].v[0].x[1] = verts[facs[i].x].y;
-        triangleList[i].v[0].x[2] = verts[facs[i].x].z;
-
-        triangleList[i].v[0].n[0] = norms[i].x;
-        triangleList[i].v[0].n[1] = norms[i].y;
-        triangleList[i].v[0].n[2] = norms[i].z;
-
-        triangleList[i].v[1].x[0] = verts[facs[i].y].x;
-        triangleList[i].v[1].x[1] = verts[facs[i].y].y;
-        triangleList[i].v[1].x[2] = verts[facs[i].y].z;
-
-        triangleList[i].v[1].n[0] = norms[i].x;
-        triangleList[i].v[1].n[1] = norms[i].y;
-        triangleList[i].v[1].n[2] = norms[i].z;
-
-        triangleList[i].v[2].x[0] = verts[facs[i].z].x;
-        triangleList[i].v[2].x[1] = verts[facs[i].z].y;
-        triangleList[i].v[2].x[2] = verts[facs[i].z].z;
-
-        triangleList[i].v[2].n[0] = norms[i].x;
-        triangleList[i].v[2].n[1] = norms[i].y;
-        triangleList[i].v[2].n[2] = norms[i].z;
-    }
-
-}
-
-
 int main(int argc, char **argv) {
 
     //Create parsing options
@@ -559,14 +125,22 @@ int main(int argc, char **argv) {
 
     string filename = opt["-i"];
 
-
     glutInit(&argc, argv);
 
-    InitGL();
+    // Init the data
+    windowData *myData = new windowData();
+    myData->arcball = Arcball();
+    myData->aspect = 5.0f / 4.0f;
+    myData->displayMode = HIDDENLINE;
+    myData->leftButton = false;
+    myData->middleButton = false;
+    LoadOrientedTriangles(filename, myData);
+
+    InitGL(myData);
 
     InitMenu();
 
-    InitGeometry(filename);
+    glutSetWindowData(myData);
 
     cout
             << "Simple geometry viewer:  Left mouse: rotate;  Middle mouse:  move;  Scroll: zoom;  Right mouse:  menu;  ESC to quit"
