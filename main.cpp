@@ -339,7 +339,7 @@ void DisplayCallback(void) {
 
     glLoadIdentity();
 
-    glTranslatef(0.0, 0.0, -sdepth);
+    glTranslatef(xcam, ycam, -sdepth);
 
     glRotatef(-stheta, 1.0, 0.0, 0.0);
 
@@ -409,6 +409,18 @@ void MotionCallback(int x, int y) {
     glutPostRedisplay();
 }
 
+void catchKey(int key, int x, int y) {
+    if (key == GLUT_KEY_LEFT)
+        xcam += 0.2;
+    else if (key == GLUT_KEY_RIGHT)
+        xcam -= 0.2;
+    else if (key == GLUT_KEY_DOWN)
+        ycam += 0.2;
+    else if (key == GLUT_KEY_UP)
+        ycam -= 0.2;
+    glutPostRedisplay();
+}
+
 
 void InitGL() {
 
@@ -451,6 +463,8 @@ void InitGL() {
     glutMouseFunc(MouseCallback);
 
     glutMotionFunc(MotionCallback);
+
+    glutSpecialFunc(catchKey);
 }
 
 
