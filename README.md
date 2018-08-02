@@ -8,4 +8,12 @@ Build with CMake.
 
 If a segmentation fault appears at run time, you may have to set the following environment variable : `LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0`
 
-Use : `./opengl_test -i /path/to/file.ply`
+## Use 
+
+Launch : `./opengl_test -i /path/to/file.ply`
+
+* **Left mouse**: rotate  
+* **Middle mouse**:  move
+* **Scroll**: zoom
+* **Right** mouse:  menu
+* **ESC** to quit
