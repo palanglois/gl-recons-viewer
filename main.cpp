@@ -511,7 +511,7 @@ void InitGeometry(std::string filename) {
     const size_t numFacesBytes = faces->buffer.size_bytes();
     std::memcpy(facs.data(), faces->buffer.get(), numFacesBytes);
     triangleCount = int(facs.size());
-    for (int i = 0; i < facs.size(); i++) {
+    for (unsigned int i = 0; i < facs.size(); i++) {
         triangleList[i].v[0].x[0] = verts[facs[i].x].x;
         triangleList[i].v[0].x[1] = verts[facs[i].x].y;
         triangleList[i].v[0].x[2] = verts[facs[i].x].z;

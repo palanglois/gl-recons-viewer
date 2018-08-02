@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 project(opengl_test)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -lpthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 message("FLAGS : ${CMAKE_CXX_FLAGS}")
 
 find_package(OpenGL REQUIRED)
