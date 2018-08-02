@@ -10,7 +10,7 @@ If a segmentation fault appears at run time, you may have to set the following e
 
 ## Use 
 
-Launch : `./opengl_test -i /path/to/file.ply`
+Launch : `./gl-recons-viewer -i /path/to/file.ply`
 
 * **Left mouse**: rotate  
 * **Middle mouse**:  move
