@@ -3,7 +3,7 @@
 
 void DrawSmoothShaded(void) {
 
-    windowData *data = (windowData *) glutGetWindowData();
+    auto data = (windowData *) glutGetWindowData();
     int triangleCount = data->triangleCount;
     Triangle *triangleList = data->triangleList;
 
@@ -11,7 +11,7 @@ void DrawSmoothShaded(void) {
 
     assert(triangleCount < MAX_TRIANGLES);
 
-    glColor3f(0.8f, 0.2f, 0.8f);
+    glColor3f(0.15f, 0.12f, 0.56f);
 
     glBegin(GL_TRIANGLES);
 
@@ -32,6 +32,7 @@ void DrawSmoothShaded(void) {
 
     glEnd();
 
+    glDisable(GL_LIGHTING);
     for (i = 0; i < triangleCount; ++i) {
 
         float center_x = (triangleList[i].v[0].x[0] + triangleList[i].v[1].x[0] + triangleList[i].v[2].x[0]) / 3.f;
@@ -56,6 +57,11 @@ void DrawSmoothShaded(void) {
         glEnd();
 
     }
+
+    // Draw the lines
+    drawLines(data->lineList);
+    glEnable(GL_LIGHTING);
+
 }
 
 void DrawWireframe(void) {
@@ -103,6 +109,9 @@ void DrawWireframe(void) {
 
         glEnd();
     }
+
+    // Draw the lines
+    drawLines(data->lineList);
 }
 
 
@@ -111,15 +120,13 @@ void DrawFlatShaded(void) {
     int triangleCount = data->triangleCount;
     Triangle *triangleList = data->triangleList;
 
-    int i;
-
     glEnable(GL_POLYGON_OFFSET_FILL);
 
     glColor3f(0.8f, 0.2f, 0.8f);
 
     glBegin(GL_TRIANGLES);
 
-    for (i = 0; i < triangleCount; ++i) {
+    for (int i = 0; i < triangleCount; ++i) {
 
         glVertex3fv(triangleList[i].v[0].x);
 
@@ -131,6 +138,11 @@ void DrawFlatShaded(void) {
     glEnd();
 
     glDisable(GL_POLYGON_OFFSET_FILL);
+
+    // Draw the lines
+    drawLines(data->lineList);
+
+
 }
 
 
@@ -163,7 +175,7 @@ void DrawHiddenLine(void) {
 
 
     for (int i = 0; i < triangleCount; ++i) {
-        glColor3f(0.4, 0.4, 0.4);
+        glColor3f(0.3, 0.3, 0.3);
         glBegin(GL_TRIANGLES);
 
         glVertex3fv(triangleList[i].v[0].x);
@@ -196,7 +208,24 @@ void DrawHiddenLine(void) {
         glEnd();
     }
 
+    // Draw the lines
+    drawLines(data->lineList);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
+void drawLines(std::vector<Line>& lineList)
+{
+    glColor3f(0.0f, 0.8f, 0.0f);
+
+    for (auto &line : lineList) {
+        glBegin(GL_LINE_STRIP);
+
+        glVertex3dv(line.getFirstPoint().data());
+        glVertex3dv(line.getSecondPoint().data());
+
+        glEnd();
+
+    }
+
+}

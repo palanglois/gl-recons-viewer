@@ -7,10 +7,12 @@
 #include <string>
 #include "tinyply.h"
 #include "tinyfiledialogs.h"
+#include "json.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <cstring>
 #include "Arcball.hpp"
+#include "Line.h"
 
 using namespace std;
 using namespace tinyply;
@@ -40,6 +42,7 @@ struct Triangle {
 struct windowData
 {
     Triangle triangleList[MAX_TRIANGLES];
+    std::vector<Line> lineList;
     int triangleCount = 0;
     Arcball arcball;
     long xsize, ysize;
@@ -49,7 +52,16 @@ struct windowData
 };
 
 void openAndDetectFile(void);
-void LoadOrientedTriangles(std::string filename, windowData *data);
+void LoadLinesFromJson(std::string fileName, windowData *data);
+void LoadOrientedTriangles(std::string fileName, windowData *data);
 void openFile(const std::string &fileName, windowData *data);
+
+/* Conversion from json to Vec3d */
+inline Vector3d json2vec3d(const nlohmann::json& jsonData)
+{
+    assert(jsonData.type() == nlohmann::json::value_t::array);
+    assert(jsonData.size() == 3);
+    return {jsonData[0], jsonData[1], jsonData[2]};
+}
 
 #endif //GL_RECONS_VIEWER_DATACONTROLLER_H

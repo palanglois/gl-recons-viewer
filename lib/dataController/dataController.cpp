@@ -1,10 +1,10 @@
 #include "dataController.h"
 
+using Json = nlohmann::json;
 
-void openAndDetectFile(void)
-{
-    char const * lFilterPatterns[2] = { "*.ply", "*.json" };
-    char const * lTheOpenFileName = tinyfd_openFileDialog(
+void openAndDetectFile(void) {
+    char const *lFilterPatterns[2] = {"*.ply", "*.json"};
+    char const *lTheOpenFileName = tinyfd_openFileDialog(
             "Open a ply file or a json containing lines",
             "",
             2,
@@ -12,8 +12,7 @@ void openAndDetectFile(void)
             NULL,
             0);
 
-    if (! lTheOpenFileName)
-    {
+    if (!lTheOpenFileName) {
         tinyfd_messageBox(
                 "Error",
                 "Open file name is NULL",
@@ -28,27 +27,55 @@ void openAndDetectFile(void)
 
 }
 
-void openFile(const std::string &fileName, windowData *data)
-{
+void openFile(const std::string &fileName, windowData *data) {
 
     // PLY handler
-    if(fileName.substr(fileName.size() - 3, 3) == "ply")
+    if (fileName.substr(fileName.size() - 3, 3) == "ply")
         LoadOrientedTriangles(fileName, data);
 
     // JSON handler
+    if (fileName.substr(fileName.size() - 4, 4) == "json")
+        LoadLinesFromJson(fileName, data);
 
     glutPostRedisplay();
 
 }
 
+void LoadLinesFromJson(std::string fileName, windowData *data) {
+    vector<Line>& lineSet = data->lineList;
+    ifstream inStream(fileName.c_str());
+    if (!inStream)
+        cerr << "Could not read data" << endl;
+
+    Json jsonData;
+    inStream >> jsonData;
+
+    assert(jsonData.type() == nlohmann::json::value_t::object);
+    assert(jsonData.at("lines").type() == nlohmann::json::value_t::array);
+    Json lineArray = jsonData.at("lines");
+    lineSet.reserve(lineArray.size() + lineSet.size());
+    for (auto &line : lineArray)
+    {
+        Vector3d firstPoint = json2vec3d(line.at("pt1"));
+        Vector3d secondPoint = json2vec3d(line.at("pt2"));
+        vector<Vector3d> pointOfViews(0);
+        assert(line.at("pt_views").type() == nlohmann::json::value_t::array);
+        Json ptViews = line.at("pt_views");
+        for (const auto &ptView : ptViews)
+            pointOfViews.push_back(json2vec3d(ptView));
+        lineSet.emplace_back(firstPoint, secondPoint, pointOfViews);
+    }
+    cout << "Loaded " << lineSet.size() << " lines." << endl;
+
+}
 
 
-void LoadOrientedTriangles(std::string filename, windowData *data) {
+void LoadOrientedTriangles(std::string fileName, windowData *data) {
 
     Triangle *triangleList = data->triangleList;
     int &triangleCount = data->triangleCount;
 
-    std::ifstream ss(filename, std::ios::binary);
+    std::ifstream ss(fileName, std::ios::binary);
     PlyFile file;
     file.parse_header(ss);
 

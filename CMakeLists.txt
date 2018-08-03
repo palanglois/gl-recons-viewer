@@ -24,6 +24,9 @@ add_library(tinyplyLib STATIC external/tinyply/tinyply.cpp )
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/tinyfiledialogs)
 add_library(tinyfiledialogs STATIC external/tinyfiledialogs/tinyfiledialogs.c)
 
+# Json
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/json)
+
 ### LOCAL LIBS ###
 
 # Arcball
@@ -36,7 +39,8 @@ add_library(displayFunc STATIC lib/displayFunc/displayFunc.cpp)
 
 # Data Controller
 include_directories(lib/dataController)
-add_library(dataController STATIC lib/dataController/dataController.cpp)
+add_library(dataController STATIC lib/dataController/dataController.cpp
+                                  lib/dataController/Line.cpp)
 target_link_libraries(dataController tinyplyLib tinyfiledialogs)
 
 # Callback functions
