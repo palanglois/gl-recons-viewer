@@ -49,6 +49,11 @@ struct windowData
     float aspect;
     int displayMode;
     bool leftButton, middleButton;
+    int displayMenu, mainMenu;
+    GLfloat light0Position[4];
+    float sdepth;
+    float xcam, ycam;
+    float zNear, zFar;
 };
 
 void openAndDetectFile(void);

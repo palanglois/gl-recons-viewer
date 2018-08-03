@@ -13,19 +13,6 @@
 using namespace std;
 
 
-/* Viewer state */
-
-float sdepth = 10;
-
-float zNear = 1.0, zFar = 100.0;
-
-float xcam = 0, ycam = 0;
-
-GLfloat light0Position[] = {0, 1, 0, 1.0};
-
-int displayMenu, mainMenu;
-
-
 void InitGL(windowData *data) {
 
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -54,7 +41,7 @@ void InitGL(windowData *data) {
 
     glColorMaterial(GL_FRONT, GL_DIFFUSE);
 
-    glLightfv(GL_LIGHT0, GL_POSITION, light0Position);
+    glLightfv(GL_LIGHT0, GL_POSITION, data->light0Position);
 
     glEnable(GL_LIGHT0);
 
@@ -73,19 +60,19 @@ void InitGL(windowData *data) {
 
     glLoadIdentity();
 
-    gluPerspective(64.0, data->aspect, zNear, zFar);
+    gluPerspective(64.0, data->aspect, data->zNear, data->zFar);
 
     glMatrixMode(GL_MODELVIEW);
 
     glLoadIdentity();
 
-    glTranslatef(xcam, ycam, -sdepth);
+    glTranslatef(data->xcam, data->ycam, -data->sdepth);
 }
 
 
-void InitMenu() {
+void InitMenu(windowData *data) {
 
-    displayMenu = glutCreateMenu(SetDisplayMenu);
+    data->displayMenu = glutCreateMenu(SetDisplayMenu);
 
     glutAddMenuEntry("Wireframe", WIREFRAME);
 
@@ -95,11 +82,11 @@ void InitMenu() {
 
     glutAddMenuEntry("Smooth Shaded", SMOOTHSHADED);
 
-    mainMenu = glutCreateMenu(SetMainMenu);
+    data->mainMenu = glutCreateMenu(SetMainMenu);
 
     glutAddMenuEntry("Open file", 98);
 
-    glutAddSubMenu("Display", displayMenu);
+    glutAddSubMenu("Display", data->displayMenu);
 
     glutAddMenuEntry("Exit", 99);
 
@@ -118,15 +105,24 @@ int main(int argc, char **argv) {
     myData->displayMode = HIDDENLINE;
     myData->leftButton = false;
     myData->middleButton = false;
+    myData->light0Position[0] = 0.f;
+    myData->light0Position[1] = 1.f;
+    myData->light0Position[2] = 0.f;
+    myData->light0Position[3] = 1.f;
+    myData->sdepth = 10.f;
+    myData->xcam = 0.f;
+    myData->ycam = 0.f;
+    myData->zNear = 1.f;
+    myData->zFar = 100.f;
 
     InitGL(myData);
 
-    InitMenu();
+    InitMenu(myData);
 
     glutSetWindowData(myData);
 
     // Load data from command line
-    for(int i=1; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         openFile(argv[i], myData);
     }
 
