@@ -1,6 +1,48 @@
 #include "dataController.h"
 
 
+void openAndDetectFile(void)
+{
+    char const * lFilterPatterns[2] = { "*.ply", "*.json" };
+    char const * lTheOpenFileName = tinyfd_openFileDialog(
+            "Open a ply file or a json containing lines",
+            "",
+            2,
+            lFilterPatterns,
+            NULL,
+            0);
+
+    if (! lTheOpenFileName)
+    {
+        tinyfd_messageBox(
+                "Error",
+                "Open file name is NULL",
+                "ok",
+                "error",
+                1);
+    }
+
+    std::string fileName = std::string(lTheOpenFileName);
+    auto *data = (windowData *) glutGetWindowData();
+    openFile(fileName, data);
+
+}
+
+void openFile(const std::string &fileName, windowData *data)
+{
+
+    // PLY handler
+    if(fileName.substr(fileName.size() - 3, 3) == "ply")
+        LoadOrientedTriangles(fileName, data);
+
+    // JSON handler
+
+    glutPostRedisplay();
+
+}
+
+
+
 void LoadOrientedTriangles(std::string filename, windowData *data) {
 
     Triangle *triangleList = data->triangleList;

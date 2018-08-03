@@ -10,7 +10,7 @@ If a segmentation fault appears at run time, you may have to set the following e
 
 ## Use 
 
-Launch : `./gl-recons-viewer -i /path/to/file.ply`
+Launch : `./gl-recons-viewer /path/to/file1.ply /path/to/file2.ply /path/to/file2.json ...`
 
 * **Left mouse**: rotate  
 * **Middle mouse**:  move

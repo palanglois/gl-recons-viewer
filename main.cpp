@@ -4,12 +4,11 @@
 
 #include <cmath>
 
-#include "option_parser.h"
-
 #include <GL/glut.h>
 
 #include "displayFunc.h"
 #include "callbackFunc.h"
+#include "dataController.h"
 
 using namespace std;
 
@@ -98,6 +97,8 @@ void InitMenu() {
 
     mainMenu = glutCreateMenu(SetMainMenu);
 
+    glutAddMenuEntry("Open file", 98);
+
     glutAddSubMenu("Display", displayMenu);
 
     glutAddMenuEntry("Exit", 99);
@@ -108,39 +109,32 @@ void InitMenu() {
 
 int main(int argc, char **argv) {
 
-    //Create parsing options
-    op::OptionParser opt;
-    opt.add_option("-h", "--help", "show option help");
-    opt.add_option("-i", "--input", "Input ply file", "");
-
-    //Parsing options
-    bool correctParsing = opt.parse_options(argc, argv);
-    if (!correctParsing)
-        return EXIT_FAILURE;
-
-    if (op::str2bool(opt["-h"]) || opt["-i"] == "") {
-        opt.show_help();
-        return 0;
-    }
-
-    string filename = opt["-i"];
-
     glutInit(&argc, argv);
 
     // Init the data
-    windowData *myData = new windowData();
+    auto *myData = new windowData();
     myData->arcball = Arcball();
     myData->aspect = 5.0f / 4.0f;
     myData->displayMode = HIDDENLINE;
     myData->leftButton = false;
     myData->middleButton = false;
-    LoadOrientedTriangles(filename, myData);
 
     InitGL(myData);
 
     InitMenu();
 
     glutSetWindowData(myData);
+
+    // Load data from command line
+    for(int i=1; i < argc; i++) {
+        std::ifstream test(argv[i]);
+        if (!test)
+        {
+            std::cout << "The file doesn't exist : " << argv[i] << std::endl;
+            continue;
+        }
+        openFile(argv[i], myData);
+    }
 
     cout
             << "Simple geometry viewer:  Left mouse: rotate;  Middle mouse:  move;  Scroll: zoom;  Right mouse:  menu;  ESC to quit"

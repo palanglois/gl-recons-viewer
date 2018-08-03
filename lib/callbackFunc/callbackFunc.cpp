@@ -61,6 +61,9 @@ void SetMainMenu(int value) {
         case 99:
             exit(0);
             break;
+        case 98:
+            openAndDetectFile();
+            break;
     }
 }
 

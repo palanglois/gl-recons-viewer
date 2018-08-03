@@ -16,12 +16,13 @@ include_directories( ${OPENGL_INCLUDE_DIRS}  ${GLUT_INCLUDE_DIRS} )
 # Eigen
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external)
 
-# Option Parser
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/OptionParser)
-
 # Tinyply
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/tinyply)
 add_library(tinyplyLib STATIC external/tinyply/tinyply.cpp )
+
+# Tiny-file-dialogs
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/tinyfiledialogs)
+add_library(tinyfiledialogs STATIC external/tinyfiledialogs/tinyfiledialogs.c)
 
 ### LOCAL LIBS ###
 
@@ -36,12 +37,12 @@ add_library(displayFunc STATIC lib/displayFunc/displayFunc.cpp)
 # Data Controller
 include_directories(lib/dataController)
 add_library(dataController STATIC lib/dataController/dataController.cpp)
-target_link_libraries(dataController tinyplyLib)
+target_link_libraries(dataController tinyplyLib tinyfiledialogs)
 
 # Callback functions
 include_directories(lib/callbackFunc)
 add_library(callbackFunc STATIC lib/callbackFunc/callbackFunc.cpp)
-target_link_libraries(callbackFunc displayFunc)
+target_link_libraries(callbackFunc displayFunc dataController)
 
 ### MAIN EXECUTABLE ###
 

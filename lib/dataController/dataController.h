@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string>
 #include "tinyply.h"
+#include "tinyfiledialogs.h"
 #include <cstdlib>
 #include <iostream>
 #include <cstring>
@@ -47,6 +48,8 @@ struct windowData
     bool leftButton, middleButton;
 };
 
+void openAndDetectFile(void);
 void LoadOrientedTriangles(std::string filename, windowData *data);
+void openFile(const std::string &fileName, windowData *data);
 
 #endif //GL_RECONS_VIEWER_DATACONTROLLER_H
