@@ -14,11 +14,12 @@ void openAndDetectFile(void) {
 
     if (!lTheOpenFileName) {
         tinyfd_messageBox(
-                "Error",
-                "Open file name is NULL",
+                "Warning",
+                "No file selected.",
                 "ok",
-                "error",
+                "warning",
                 1);
+        return;
     }
 
     std::string fileName = std::string(lTheOpenFileName);
@@ -28,6 +29,13 @@ void openAndDetectFile(void) {
 }
 
 void openFile(const std::string &fileName, windowData *data) {
+
+    std::ifstream test(fileName.c_str());
+    if (!test)
+    {
+        std::cout << "The file doesn't exist : " << fileName << std::endl;
+        return;
+    }
 
     // PLY handler
     if (fileName.substr(fileName.size() - 3, 3) == "ply")

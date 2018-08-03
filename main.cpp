@@ -127,12 +127,6 @@ int main(int argc, char **argv) {
 
     // Load data from command line
     for(int i=1; i < argc; i++) {
-        std::ifstream test(argv[i]);
-        if (!test)
-        {
-            std::cout << "The file doesn't exist : " << argv[i] << std::endl;
-            continue;
-        }
         openFile(argv[i], myData);
     }
 
