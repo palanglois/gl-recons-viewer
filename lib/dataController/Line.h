@@ -1,6 +1,7 @@
 #ifndef RANSAC_ON_LINES_CPP_LINE_H
 #define RANSAC_ON_LINES_CPP_LINE_H
 
+#include <vector>
 #include <Eigen/Core>
 
 using namespace Eigen;
