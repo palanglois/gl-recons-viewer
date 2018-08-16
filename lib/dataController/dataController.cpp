@@ -66,12 +66,15 @@ void LoadLinesFromJson(std::string fileName, windowData *data) {
     {
         Vector3d firstPoint = json2vec3d(line.at("pt1"));
         Vector3d secondPoint = json2vec3d(line.at("pt2"));
+        Vector3d color(0.0, 0.8, 0.0);
+        if(line.find("color") != line.end())
+            color = json2vec3d(line.at("color"));
         vector<Vector3d> pointOfViews(0);
         assert(line.at("pt_views").type() == nlohmann::json::value_t::array);
         Json ptViews = line.at("pt_views");
         for (const auto &ptView : ptViews)
             pointOfViews.push_back(json2vec3d(ptView));
-        lineSet.emplace_back(firstPoint, secondPoint, pointOfViews);
+        lineSet.emplace_back(firstPoint, secondPoint, pointOfViews, color);
     }
     cout << "Loaded " << lineSet.size() << " lines." << endl;
 
@@ -92,8 +95,13 @@ void LoadOrientedTriangles(std::string fileName, windowData *data) {
     try { vertices = file.request_properties_from_element("vertex", {"x", "y", "z"}); }
     catch (const std::exception &e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
 
+    bool hasFaceNormals = true;
     try { normals = file.request_properties_from_element("face", {"nx", "ny", "nz"}); }
-    catch (const std::exception &e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+    catch (const std::exception &e)
+    {
+        std::cout << "File" << fileName << " has no face normals attached." << std::endl;
+        hasFaceNormals = false;
+    }
 
     try { faces = file.request_properties_from_element("face", {"vertex_index"}); }
     catch (const std::exception &e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
@@ -103,9 +111,13 @@ void LoadOrientedTriangles(std::string fileName, windowData *data) {
     std::vector<float3> verts(vertices->count);
     const size_t numVerticesBytes = vertices->buffer.size_bytes();
     std::memcpy(verts.data(), vertices->buffer.get(), numVerticesBytes);
-    std::vector<float3> norms(normals->count);
-    const size_t numNormalsBytes = normals->buffer.size_bytes();
-    std::memcpy(norms.data(), normals->buffer.get(), numNormalsBytes);
+    std::vector<float3> norms;
+    if(hasFaceNormals)
+    {
+        norms = std::vector<float3>(normals->count);
+        const size_t numNormalsBytes = normals->buffer.size_bytes();
+        std::memcpy(norms.data(), normals->buffer.get(), numNormalsBytes);
+    }
     std::vector<uint3> facs(faces->count);
     const size_t numFacesBytes = faces->buffer.size_bytes();
     std::memcpy(facs.data(), faces->buffer.get(), numFacesBytes);
@@ -115,25 +127,25 @@ void LoadOrientedTriangles(std::string fileName, windowData *data) {
         triangleList[i].v[0].x[1] = verts[facs[i].x].y;
         triangleList[i].v[0].x[2] = verts[facs[i].x].z;
 
-        triangleList[i].v[0].n[0] = norms[i].x;
-        triangleList[i].v[0].n[1] = norms[i].y;
-        triangleList[i].v[0].n[2] = norms[i].z;
-
         triangleList[i].v[1].x[0] = verts[facs[i].y].x;
         triangleList[i].v[1].x[1] = verts[facs[i].y].y;
         triangleList[i].v[1].x[2] = verts[facs[i].y].z;
-
-        triangleList[i].v[1].n[0] = norms[i].x;
-        triangleList[i].v[1].n[1] = norms[i].y;
-        triangleList[i].v[1].n[2] = norms[i].z;
 
         triangleList[i].v[2].x[0] = verts[facs[i].z].x;
         triangleList[i].v[2].x[1] = verts[facs[i].z].y;
         triangleList[i].v[2].x[2] = verts[facs[i].z].z;
 
-        triangleList[i].v[2].n[0] = norms[i].x;
-        triangleList[i].v[2].n[1] = norms[i].y;
-        triangleList[i].v[2].n[2] = norms[i].z;
+        triangleList[i].v[0].n[0] = hasFaceNormals ? norms[i].x : 0.f;
+        triangleList[i].v[0].n[1] = hasFaceNormals ? norms[i].y : 0.f;
+        triangleList[i].v[0].n[2] = hasFaceNormals ? norms[i].z : 0.f;
+
+        triangleList[i].v[1].n[0] = hasFaceNormals ? norms[i].x : 0.f;
+        triangleList[i].v[1].n[1] = hasFaceNormals ? norms[i].y : 0.f;
+        triangleList[i].v[1].n[2] = hasFaceNormals ? norms[i].z : 0.f;
+
+        triangleList[i].v[2].n[0] = hasFaceNormals ? norms[i].x : 0.f;
+        triangleList[i].v[2].n[1] = hasFaceNormals ? norms[i].y : 0.f;
+        triangleList[i].v[2].n[2] = hasFaceNormals ? norms[i].z : 0.f;
     }
 
 }

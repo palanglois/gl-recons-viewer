@@ -10,7 +10,7 @@ class Line
 {
 public:
     Line(Vector3d _firstPoint = Vector3d(0., 0., 0.), Vector3d _secondPoint = Vector3d(0., 0., 0.),
-         std::vector<Vector3d> _pointOfViews=std::vector<Vector3d>(0));
+         std::vector<Vector3d> _pointOfViews=std::vector<Vector3d>(0), Vector3d _color = Vector3d(0.0, 0.8, 0.0));
 
     /* Getters */
     const Vector3d& getFirstPoint() const;
@@ -19,6 +19,7 @@ public:
     const Vector3d& getDirection() const;
     double getNorm() const;
     const std::vector<int>& getPlanesIndex() const;
+    const Vector3d& getColor() const;
 
 private:
     const Vector3d firstPoint;
@@ -27,6 +28,7 @@ private:
     const double norm;
     const std::vector<Vector3d> pointOfViews;
     std::vector<int> planesIndex;
+    const Vector3d color;
 };
 
 #endif //RANSAC_ON_LINES_CPP_LINE_H

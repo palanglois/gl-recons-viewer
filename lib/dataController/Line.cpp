@@ -2,13 +2,15 @@
 
 using namespace std;
 
-Line::Line(Vector3d _firstPoint, Vector3d _secondPoint, vector<Vector3d> _pointOfViews) : firstPoint(_firstPoint),
+Line::Line(Vector3d _firstPoint, Vector3d _secondPoint, vector<Vector3d> _pointOfViews, Vector3d _color) :
+                                                                                 firstPoint(_firstPoint),
                                                                                  secondPoint(_secondPoint),
                                                                                  direction((_secondPoint -
                                                                                             _firstPoint).normalized()),
                                                                                  norm((_secondPoint -
                                                                                          _firstPoint).norm()),
-                                                                                 pointOfViews(std::move(_pointOfViews))
+                                                                                 pointOfViews(std::move(_pointOfViews)),
+                                                                                 color(_color)
 {
 
 }
@@ -41,4 +43,9 @@ const std::vector<Vector3d>& Line::getPointOfViews() const
 const std::vector<int>& Line::getPlanesIndex() const
 {
     return planesIndex;
+}
+
+const Vector3d& Line::getColor() const
+{
+    return color;
 }

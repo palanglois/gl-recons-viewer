@@ -64,8 +64,8 @@ void DrawSmoothShaded(void) {
 
 }
 
-void DrawWireframe(void) {
-    windowData *data = (windowData *) glutGetWindowData();
+void DrawWireframe() {
+    auto *data = (windowData *) glutGetWindowData();
     int triangleCount = data->triangleCount;
     Triangle *triangleList = data->triangleList;
 
@@ -219,6 +219,7 @@ void drawLines(std::vector<Line>& lineList)
     glColor3f(0.0f, 0.8f, 0.0f);
 
     for (auto &line : lineList) {
+        glColor3f((GLfloat) line.getColor().x(), (GLfloat) line.getColor().y(), (GLfloat) line.getColor().z());
         glBegin(GL_LINE_STRIP);
 
         glVertex3dv(line.getFirstPoint().data());
