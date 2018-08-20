@@ -104,7 +104,14 @@ void LoadOrientedTriangles(std::string fileName, windowData *data) {
     }
 
     try { faces = file.request_properties_from_element("face", {"vertex_index"}); }
-    catch (const std::exception &e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+    catch (const std::exception &e)
+    {
+        try { faces = file.request_properties_from_element("face", {"vertex_indices"}); }
+        catch (const std::exception &e)
+        {
+            std::cerr << "tinyply exception: " << e.what() << std::endl;
+        }
+    }
 
     file.read(ss);
 
