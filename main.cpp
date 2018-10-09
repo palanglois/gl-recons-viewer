@@ -19,7 +19,7 @@ void InitGL(windowData *data) {
 
     glutInitWindowSize(600, 600);
 
-    glutCreateWindow("Plane orientation Viewer");
+    glutCreateWindow("Simple geometry Viewer");
 
     glEnable(GL_DEPTH_TEST);
 
