@@ -59,7 +59,7 @@ void DrawSmoothShaded(void) {
     }
 
     // Draw the lines
-    drawLines(data->lineList);
+    drawLines(data->lineList, data->displayPov);
     glEnable(GL_LIGHTING);
 
 }
@@ -111,7 +111,7 @@ void DrawWireframe() {
     }
 
     // Draw the lines
-    drawLines(data->lineList);
+    drawLines(data->lineList, data->displayPov);
 }
 
 
@@ -140,7 +140,7 @@ void DrawFlatShaded(void) {
     glDisable(GL_POLYGON_OFFSET_FILL);
 
     // Draw the lines
-    drawLines(data->lineList);
+    drawLines(data->lineList, data->displayPov);
 
 
 }
@@ -209,12 +209,12 @@ void DrawHiddenLine(void) {
     }
 
     // Draw the lines
-    drawLines(data->lineList);
+    drawLines(data->lineList, data->displayPov);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void drawLines(std::vector<Line>& lineList)
+void drawLines(std::vector<Line>& lineList, bool withPov)
 {
     glColor3f(0.0f, 0.8f, 0.0f);
 
@@ -226,6 +226,23 @@ void drawLines(std::vector<Line>& lineList)
         glVertex3dv(line.getSecondPoint().data());
 
         glEnd();
+
+        if(!withPov) continue;
+
+        for (auto &pt_view: line.getPointOfViews()) {
+            glColor3f(0.0f, 0.0f, 0.8f);
+            glBegin(GL_LINE_STRIP);
+            Vector3d midPoint = (line.getFirstPoint() + line.getSecondPoint()) / 2.;
+            glVertex3dv(midPoint.data());
+            glVertex3dv(pt_view.data());
+            glEnd();
+            // Point of view
+            glColor3f(1.0f, 0.67f, 0.f);
+            glPointSize(5.f);
+            glBegin (GL_POINTS);
+            glVertex3dv(pt_view.data());
+            glEnd ();
+        }
 
     }
 

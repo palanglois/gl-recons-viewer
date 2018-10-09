@@ -17,7 +17,7 @@
 using namespace std;
 using namespace tinyply;
 
-#define MAX_TRIANGLES (1305963)
+#define MAX_TRIANGLES (3305963)
 
 enum {
     WIREFRAME, HIDDENLINE, FLATSHADED, SMOOTHSHADED
@@ -54,6 +54,7 @@ struct windowData
     float sdepth;
     float xcam, ycam;
     float zNear, zFar;
+    bool displayPov;
 };
 
 void openAndDetectFile(void);

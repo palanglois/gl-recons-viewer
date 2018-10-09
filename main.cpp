@@ -114,6 +114,7 @@ int main(int argc, char **argv) {
     myData->ycam = 0.f;
     myData->zNear = 1.f;
     myData->zFar = 100.f;
+    myData->displayPov = false;
 
     InitGL(myData);
 
@@ -123,7 +124,10 @@ int main(int argc, char **argv) {
 
     // Load data from command line
     for (int i = 1; i < argc; i++) {
-        openFile(argv[i], myData);
+        if(strcmp(argv[i], "-pov") == 0)
+            myData->displayPov = true;
+        else
+            openFile(argv[i], myData);
     }
 
     cout

@@ -11,6 +11,6 @@ void DrawWireframe(void);
 void DrawFlatShaded(void);
 void DrawHiddenLine(void);
 
-void drawLines(std::vector<Line>& lineList);
+void drawLines(std::vector<Line>& lineList, bool withPov=false);
 
 #endif //GL_RECONS_VIEWER_DISPLAYFUNC_H
