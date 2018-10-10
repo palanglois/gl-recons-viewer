@@ -90,6 +90,7 @@ void Arcball::StartZooming(int x, int y) {
 }
 
 void Arcball::UpdateZooming(int x, int y) {
+    (void)y;
     if (_isZooming) {
         GLdouble mvMatrix[16];
         glGetDoublev(GL_MODELVIEW_MATRIX, mvMatrix);

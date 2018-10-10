@@ -18,7 +18,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external)
 
 # Tinyply
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/tinyply)
-add_library(tinyplyLib STATIC external/tinyply/tinyply.cpp )
+add_definitions(-DTINYPLY_IMPLEMENTATION=1)
 
 # Tiny-file-dialogs
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/tinyfiledialogs)
@@ -41,7 +41,7 @@ add_library(displayFunc STATIC lib/displayFunc/displayFunc.cpp)
 include_directories(lib/dataController)
 add_library(dataController STATIC lib/dataController/dataController.cpp
                                   lib/dataController/Line.cpp)
-target_link_libraries(dataController tinyplyLib tinyfiledialogs)
+target_link_libraries(dataController tinyfiledialogs)
 
 # Callback functions
 include_directories(lib/callbackFunc)

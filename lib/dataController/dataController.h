@@ -5,7 +5,6 @@
 #include <GL/freeglut_ext.h>
 #include <fstream>
 #include <string>
-#include "tinyply.h"
 #include "tinyfiledialogs.h"
 #include "json.hpp"
 #include <cstdlib>
@@ -15,7 +14,6 @@
 #include "Line.h"
 
 using namespace std;
-using namespace tinyply;
 
 #define MAX_TRIANGLES (3305963)
 

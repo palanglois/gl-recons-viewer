@@ -98,7 +98,8 @@ void DisplayCallback(void) {
 
 
 void KeyboardCallback(unsigned char ch, int x, int y) {
-
+    (void)x;
+    (void)y;
     switch (ch) {
         case 27:
             exit(0);

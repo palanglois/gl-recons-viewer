@@ -1,6 +1,8 @@
 #include "dataController.h"
+#include "tinyply.h"
 
 using Json = nlohmann::json;
+using namespace tinyply;
 
 void openAndDetectFile(void) {
     char const *lFilterPatterns[2] = {"*.ply", "*.json"};
