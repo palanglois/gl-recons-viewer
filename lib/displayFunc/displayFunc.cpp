@@ -230,14 +230,14 @@ void drawLines(std::vector<Line>& lineList, bool withPov)
         if(!withPov) continue;
 
         for (auto &pt_view: line.getPointOfViews()) {
-            glColor3f(0.0f, 0.0f, 0.8f);
+            glColor4f(0.0f, 0.0f, 0.8f, 0.2f);
             glBegin(GL_LINE_STRIP);
             Vector3d midPoint = (line.getFirstPoint() + line.getSecondPoint()) / 2.;
             glVertex3dv(midPoint.data());
             glVertex3dv(pt_view.data());
             glEnd();
             // Point of view
-            glColor3f(1.0f, 0.67f, 0.f);
+            glColor4f(1.0f, 0.67f, 0.f, 1.f);
             glPointSize(5.f);
             glBegin (GL_POINTS);
             glVertex3dv(pt_view.data());
