@@ -68,7 +68,7 @@ void LoadLinesFromJson(std::string fileName, windowData *data) {
     {
         Vector3d firstPoint = json2vec3d(line.at("pt1"));
         Vector3d secondPoint = json2vec3d(line.at("pt2"));
-        Vector3d color(0.0, 0.8, 0.0);
+        Vector3d color(0.0, 0.0, 0.0);
         if(line.find("color") != line.end())
             color = json2vec3d(line.at("color"));
         vector<Vector3d> pointOfViews(0);

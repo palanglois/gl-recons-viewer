@@ -29,7 +29,8 @@ void InitGL(windowData *data) {
 
     glDepthFunc(GL_LEQUAL);
 
-    glClearColor(0.0, 0.0, 0.0, 0.0);
+//    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClearColor(1.0, 1.0, 1.0, 0.0);
 
     glPolygonOffset(1.0, 1.0);
 

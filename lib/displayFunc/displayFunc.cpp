@@ -88,6 +88,7 @@ void DrawWireframe() {
 
         glEnd();
 
+        /*
         float center_x = (triangleList[i].v[0].x[0] + triangleList[i].v[1].x[0] + triangleList[i].v[2].x[0]) / 3.f;
         float center_y = (triangleList[i].v[0].x[1] + triangleList[i].v[1].x[1] + triangleList[i].v[2].x[1]) / 3.f;
         float center_z = (triangleList[i].v[0].x[2] + triangleList[i].v[1].x[2] + triangleList[i].v[2].x[2]) / 3.f;
@@ -108,6 +109,7 @@ void DrawWireframe() {
         glVertex3fv(norm_extr);
 
         glEnd();
+         */
     }
 
     // Draw the lines
@@ -185,7 +187,7 @@ void DrawHiddenLine(void) {
         glVertex3fv(triangleList[i].v[2].x);
         glEnd();
 
-
+        /*
         float center_x = (triangleList[i].v[0].x[0] + triangleList[i].v[1].x[0] + triangleList[i].v[2].x[0]) / 3.f;
         float center_y = (triangleList[i].v[0].x[1] + triangleList[i].v[1].x[1] + triangleList[i].v[2].x[1]) / 3.f;
         float center_z = (triangleList[i].v[0].x[2] + triangleList[i].v[1].x[2] + triangleList[i].v[2].x[2]) / 3.f;
@@ -205,7 +207,7 @@ void DrawHiddenLine(void) {
         glVertex3fv(triangle_center);
         glVertex3fv(norm_extr);
 
-        glEnd();
+        glEnd();*/
     }
 
     // Draw the lines
