@@ -17,3 +17,7 @@ Launch : `./gl-recons-viewer /path/to/file1.ply /path/to/file2.ply /path/to/file
 * **Scroll**: zoom
 * **Right mouse**:  menu
 * **ESC** to quit
+
+## Example
+Here is a representation from this viewer of the output of [Line3d++](https://github.com/manhofer/Line3Dpp) by Manuel Hofer. We can observe the camera poses and the visibility lines between each reconstructed 3D line and the point of views that generated it.
+![Example image](http://imagine.enpc.fr/~langloip/data/Input_data.png)
